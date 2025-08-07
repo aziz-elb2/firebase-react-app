@@ -1,35 +1,44 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from "react";
+import { db } from "./firebase";
+import { collection, getDocs } from "firebase/firestore";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [books, setBooks] = useState([]);
+  const [isloading, setIsloading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetchBooks();
+  }, []);
+
+  const fetchBooks = async () => {
+    try {
+      const colRef = collection(db, "books");
+      const snapshot = await getDocs(colRef);
+      // console.log(snapshot);
+      const docs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      setBooks(docs);
+      setIsloading(false);
+    } catch (error) {
+      setError(error);
+      setIsloading(false);
+    }
+  };
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      {isloading && <h3>Loading ... </h3>}
+      {error && <h3>Error : {error}</h3>}
+      {books &&
+        books.map((book) => (
+          <div key={book.id}>
+            <h4>{book.title}</h4>
+            <p>{book.author}</p>
+            <span >{book.pages}</span>
+          </div>
+        ))}
     </>
-  )
+  );
 }
 
-export default App
+export default App;
