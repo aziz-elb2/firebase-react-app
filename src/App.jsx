@@ -3,6 +3,7 @@ import { db } from "./firebase";
 import {
   collection,
   getDocs,
+  onSnapshot,
   addDoc,
   deleteDoc,
   doc,
@@ -15,21 +16,13 @@ function App() {
   const colRef = collection(db, "books");
 
   useEffect(() => {
-    fetchBooks();
-  }, []);
-
-  const fetchBooks = async () => {
-    try {
-      const snapshot = await getDocs(colRef);
-      // console.log(snapshot);
+    onSnapshot(colRef, (snapshot) => {
+      setIsloading(true);
       const docs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setBooks(docs);
       setIsloading(false);
-    } catch (error) {
-      setError(error);
-      setIsloading(false);
-    }
-  };
+    });
+  }, []);
 
   //Adding books logic
   const [newBook, setNewBook] = useState({
@@ -41,14 +34,7 @@ function App() {
   const handleSubmit = (e) => {
     e.preventDefault();
     addDoc(colRef, newBook).then((snapshot) => {
-      setBooks((old) => [
-        ...old,
-        {
-          id: snapshot.id,
-          ...newBook,
-        },
-      ]);
-      console.log(books);
+      console.log("Book added succesfuly");
     });
     resetAddForm();
   };
@@ -62,12 +48,11 @@ function App() {
   // Delete book
 
   const handleDelete = (id) => {
-    const docRef = doc(db,'books',id)
+    const docRef = doc(db, "books", id);
     deleteDoc(docRef).then((snapshot) => {
-      console.log("Book Deleted Succefuly")
-      setBooks((old) => old.filter((book) => book.id != id))
-    })
-  }
+      console.log("Book Deleted Succefuly");
+    });
+  };
   return (
     <>
       <form className="p-4 mb-4 " onSubmit={(e) => handleSubmit(e)}>
@@ -110,7 +95,12 @@ function App() {
             <h4 className="text-red-700 underline font-bold">{book.title}</h4>
             <p>{book.author}</p>
             <span>{book.pages}</span>
-            <button onClick={() => handleDelete(book.id)} className="bg-red-500 p-1 cursor-pointer text-amber-50">Delete Book</button>
+            <button
+              onClick={() => handleDelete(book.id)}
+              className="bg-red-500 p-1 cursor-pointer text-amber-50"
+            >
+              Delete Book
+            </button>
           </div>
         ))}
     </>
