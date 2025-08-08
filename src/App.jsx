@@ -7,22 +7,33 @@ import {
   addDoc,
   deleteDoc,
   doc,
+  query,
+  where,
 } from "firebase/firestore";
 
 function App() {
   const [books, setBooks] = useState([]);
   const [isloading, setIsloading] = useState(true);
   const [error, setError] = useState(null);
+  const [filterPages, setFilterPages] = useState("");
   const colRef = collection(db, "books");
 
   useEffect(() => {
-    onSnapshot(colRef, (snapshot) => {
+    let q;
+
+    if (filterPages) {
+      q = query(colRef, where("pages", ">=", filterPages));
+    } else {
+      q = colRef;
+    }
+
+    onSnapshot(q, (snapshot) => {
       setIsloading(true);
       const docs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setBooks(docs);
       setIsloading(false);
     });
-  }, []);
+  }, [filterPages]);
 
   //Adding books logic
   const [newBook, setNewBook] = useState({
@@ -53,6 +64,7 @@ function App() {
       console.log("Book Deleted Succefuly");
     });
   };
+
   return (
     <>
       <form className="p-4 mb-4 " onSubmit={(e) => handleSubmit(e)}>
@@ -84,6 +96,14 @@ function App() {
         <button className="bg-blue-600 border-blue-800 rounded-sm text-white p-1">
           Add Book
         </button>
+      </form>
+
+      <form >
+        <h4>Filter books by pages bigger than</h4>
+        <input
+          type="number" className="border-1 "
+          onChange={(e) => setFilterPages(parseInt(e.target.value))}
+        />
       </form>
 
       <h4>Display Books</h4>
