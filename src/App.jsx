@@ -9,6 +9,8 @@ import {
   doc,
   query,
   where,
+  orderBy,
+  serverTimestamp,
 } from "firebase/firestore";
 
 function App() {
@@ -22,9 +24,13 @@ function App() {
     let q;
 
     if (filterPages) {
-      q = query(colRef, where("pages", ">=", filterPages));
+      q = query(
+        colRef,
+        where("pages", ">=", filterPages),
+        orderBy("createdAt")
+      );
     } else {
-      q = colRef;
+      q = query(colRef, orderBy("createdAt"));
     }
 
     onSnapshot(q, (snapshot) => {
@@ -40,6 +46,7 @@ function App() {
     title: "",
     author: "",
     pages: "",
+    createdAt: serverTimestamp(),
   });
 
   const handleSubmit = (e) => {
@@ -54,6 +61,7 @@ function App() {
       title: "",
       author: "",
       pages: "",
+      createdAt: serverTimestamp(),
     });
   };
   // Delete book
@@ -98,10 +106,11 @@ function App() {
         </button>
       </form>
 
-      <form >
+      <form>
         <h4>Filter books by pages bigger than</h4>
         <input
-          type="number" className="border-1 "
+          type="number"
+          className="border-1 "
           onChange={(e) => setFilterPages(parseInt(e.target.value))}
         />
       </form>
