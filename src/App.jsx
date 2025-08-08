@@ -31,8 +31,8 @@ function App() {
       {error && <h3>Error : {error}</h3>}
       {books &&
         books.map((book) => (
-          <div key={book.id}>
-            <h4>{book.title}</h4>
+          <div key={book.id} >
+            <h4 className="text-red-700 underline font-bold">{book.title}</h4>
             <p>{book.author}</p>
             <span >{book.pages}</span>
           </div>
