@@ -1,7 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { db } from "./firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 const ViewBook = () => {
   const [loading, setloading] = useState(true);
@@ -10,7 +10,10 @@ const ViewBook = () => {
   const { id } = useParams();
   const docRef = doc(db, "books", id);
 
+  const [updatedBook, setUpdatedBook] = useState({});
+
   useEffect(() => {
+    setloading(true)
     getDoc(docRef)
       .then((doc) => {
         const newbook = {
@@ -18,29 +21,68 @@ const ViewBook = () => {
           ...doc.data(),
         };
         setBook(newbook);
+        setUpdatedBook(newbook);
         setloading(false);
       })
       .catch((error) => {
         // console.log(error);
         setError(error);
+        setloading(false)
       });
   }, []);
 
+  const handleUpdate = (e) => {
+    e.preventDefault();
+
+    updateDoc(docRef, updatedBook).then(() => {
+      console.log("Updated succeffuly");
+    });
+  };
+
   return (
     <>
-      <Link to='/'>
+      <Link to="/">
         <button>Back</button>
       </Link>
       {error && <p>{error}</p>}
-      {loading && <p>{loading}</p>}
+      {loading && <p>Loading ...</p>}
       {book && (
-        <div className="border-1 flex flex-col space-x-1 justify-center items-center w-1/2">
-          <h1>View Book</h1>
-          <h3>Book title : {book.title}</h3>
-          <h3>Book author : {book.author}</h3>
-          <h3>Book pages : {book.pages}</h3>
-          <h3>Book pages : {book.pages}</h3>
-        </div>
+        <form className="flex flex-col" onSubmit={(e) => handleUpdate(e)}>
+          <input
+            type="text"
+            value={updatedBook.title}
+            onChange={(e) =>
+              setUpdatedBook((old) => ({
+                ...old,
+                title: e.target.value,
+              }))
+            }
+          />
+          <input
+            type="text"
+            value={updatedBook.author}
+            onChange={(e) =>
+              setUpdatedBook((old) => ({
+                ...old,
+                author: e.target.value,
+              }))
+            }
+          />
+          <input
+            type="number"
+            min={0}
+            max={10000}
+            value={updatedBook.pages}
+            onChange={(e) =>
+              setUpdatedBook((old) => ({
+                ...old,
+                pages: parseInt(e.target.value),
+              }))
+            }
+          />
+
+          <button className="bg-blue-500  text-white">Modify</button>
+        </form>
       )}
     </>
   );
