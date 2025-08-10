@@ -13,7 +13,7 @@ const ViewBook = () => {
   const [updatedBook, setUpdatedBook] = useState({});
 
   useEffect(() => {
-    setloading(true)
+    setloading(true);
     getDoc(docRef)
       .then((doc) => {
         const newbook = {
@@ -27,7 +27,7 @@ const ViewBook = () => {
       .catch((error) => {
         // console.log(error);
         setError(error);
-        setloading(false)
+        setloading(false);
       });
   }, []);
 
@@ -48,6 +48,7 @@ const ViewBook = () => {
       {loading && <p>Loading ...</p>}
       {book && (
         <form className="flex flex-col" onSubmit={(e) => handleUpdate(e)}>
+          
           <input
             type="text"
             value={updatedBook.title}

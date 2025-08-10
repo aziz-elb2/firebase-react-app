@@ -13,7 +13,6 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 
-
 import { useNavigate } from "react-router-dom";
 
 const HomeBook = () => {
@@ -80,6 +79,9 @@ const HomeBook = () => {
 
   return (
     <>
+
+
+
       <form className="p-4 mb-4 " onSubmit={(e) => handleSubmit(e)}>
         <h4>Add Book Form</h4>
         <input
@@ -126,7 +128,12 @@ const HomeBook = () => {
       {books &&
         books.map((book) => (
           <div key={book.id}>
-            <h4 className="text-blue-700 underline font-bold cursor-pointer" onClick={() =>navigate(`/viewBook/${book.id}`)}>{book.title}</h4>
+            <h4
+              className="text-blue-700 underline font-bold cursor-pointer"
+              onClick={() => navigate(`/viewBook/${book.id}`)}
+            >
+              {book.title}
+            </h4>
             <p>{book.author}</p>
             <span>{book.pages}</span>
             <button
