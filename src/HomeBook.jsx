@@ -20,16 +20,19 @@ import {
   EyeIcon,
   MagnifyingGlassIcon,
   PlusIcon,
+  SparklesIcon,
   TrashIcon,
+
   XMarkIcon,
 } from "@heroicons/react/24/outline";
+import { UserIcon } from "@heroicons/react/24/solid";
 import { Link } from "react-router-dom";
 
 const HomeBook = () => {
   const [books, setBooks] = useState([]);
   const [isloading, setIsloading] = useState(true);
   const [error, setError] = useState(null);
-  const [filterPages, setFilterPages] = useState("");
+  const [filterTitle, setfilterTitle] = useState("");
   const [displayDialog, setDisplayDialog] = useState(false);
   const colRef = collection(db, "books");
 
@@ -38,10 +41,10 @@ const HomeBook = () => {
   useEffect(() => {
     let q;
 
-    if (filterPages) {
+    if (filterTitle) {
       q = query(
         colRef,
-        where("pages", ">=", filterPages),
+        where("title", "array-contains", filterTitle),
         orderBy("createdAt")
       );
     } else {
@@ -54,7 +57,7 @@ const HomeBook = () => {
       setBooks(docs);
       setIsloading(false);
     });
-  }, [filterPages]);
+  }, [filterTitle]);
 
   //Adding books logic
   const [newBook, setNewBook] = useState({
@@ -103,6 +106,13 @@ const HomeBook = () => {
     setDisplayDialog((old) => !old);
   };
 
+  const randomImage = () => {
+    const randNumber = Math.floor(Math.random() * 1000);
+    console.log(randNumber);
+    const randomUrl = `https://picsum.photos/seed/${randNumber}/200/300`;
+    setNewBook((old) => ({ ...old, photoUrl: randomUrl }));
+  };
+
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 mt-2 space-y-2">
       {displayDialog && (
@@ -116,10 +126,7 @@ const HomeBook = () => {
                 className="h-[1em] hover:text-red-500 cursor-pointer transform transition-transform  ease-out duration-200 hover:scale-110"
               />
             </h2>
-            <form
-              onSubmit={(e) => handleSubmit(e)}
-              className="space-y-2 grid grid-cols-3 gap-2"
-            >
+            <div className="space-y-2 grid grid-cols-3 gap-2">
               <div className="flex flex-row items-center  col-span-3 gap-2">
                 {newBook.photoUrl ? (
                   <img className="size-10 rounded-box" src={newBook.photoUrl} />
@@ -160,16 +167,29 @@ const HomeBook = () => {
                   }
                 />
               </label>
+              <div className="col-span-3 flex flex-row gap-1">
+                <label className="input  w-full">
+                  <input
+                    type="text"
+                    placeholder="PhotoUrl"
+                    value={newBook.photoUrl}
+                    className="input col-span-3 w-full"
+                    onChange={(e) =>
+                      setNewBook((old) => ({
+                        ...old,
+                        photoUrl: e.target.value,
+                      }))
+                    }
+                  />
+                </label>
+                <button
+                  className="btn btn-soft btn-info hover:text-white transition transform duration-200 hover:scale-105 px-1.5 "
+                  onClick={() => randomImage()}
+                >
+                  <SparklesIcon className=" opacity-50 h-5 " />
+                </button>
+              </div>
 
-              <input
-                type="text"
-                placeholder="PhotoUrl"
-                value={newBook.photoUrl}
-                className="input col-span-3 w-full"
-                onChange={(e) =>
-                  setNewBook((old) => ({ ...old, photoUrl: e.target.value }))
-                }
-              />
               <textarea
                 className="textarea col-span-3 resize-none w-full"
                 rows={5}
@@ -180,10 +200,13 @@ const HomeBook = () => {
                 }
               ></textarea>
 
-              <button className="col-span-3 btn btn-soft btn-info font-thin  btn-wide max-w-full hover:text-white  ">
+              <button
+                className="col-span-3 btn btn-soft btn-info font-thin  btn-wide max-w-full hover:text-white  "
+                onClick={(e) => handleSubmit(e)}
+              >
                 Add Book
               </button>
-            </form>
+            </div>
           </div>
         </div>
       )}
@@ -191,20 +214,21 @@ const HomeBook = () => {
       <div className="card w-full bg-base-100 card-sm shadow-sm">
         <div className="card-body">
           <h2 className="card-title font-thin flex flex-row justify-between">
-            Books Pages
-            <button
-              className="btn btn-ghost font-light hover:text-secondary"
-              onClick={() => clickAdd()}
-            >
-              Add <PlusIcon className="h-[1em]" />
-            </button>
+            <span>Books</span>
+            <span className="text-sm flex items-center justify-center gap-1">
+              <button className="btn btn-sm btn-soft btn-secondary hover:text-white">
+                <UserIcon className="h-[1em] opacity-90 " />
+                Logout
+              </button>
+            </span>
           </h2>
 
           <label className="input">
             <MagnifyingGlassIcon className="h-[1em] opacity-50" />
             <input
-              type="number"
-              onChange={(e) => setFilterPages(parseInt(e.target.value))}
+              type="text"
+              placeholder="Book title"
+              onChange={(e) => setfilterTitle(e.target.value)}
             />
           </label>
         </div>
@@ -213,11 +237,19 @@ const HomeBook = () => {
       {error && <h3>Error : {error}</h3>}
 
       <ul className="list bg-base-100 rounded-box shadow-md  ">
-        <li className="p-4 pb-2 text-xs opacity-60 tracking-wide">
-          The best books
+        <li className="p-4 pb-2 text-xs  tracking-wide text-center flex justify-between items-center">
+          <span className="opacity-60">My list of books</span>
+          <button
+            className="btn btn-ghost  btn-sm font-light hover:text-secondary"
+            onClick={() => clickAdd()}
+          >
+            Add <PlusIcon className="h-[1em]" />
+          </button>
         </li>
         {isloading ? (
           <div className="space-y-1 p-5">
+            <div className="skeleton h-4 w-full p-6"></div>
+            <div className="skeleton h-4 w-full p-6"></div>
             <div className="skeleton h-4 w-full p-6"></div>
             <div className="skeleton h-4 w-full p-6"></div>
             <div className="skeleton h-4 w-full p-6"></div>
