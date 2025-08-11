@@ -58,6 +58,8 @@ const HomeBook = () => {
     title: "",
     author: "",
     pages: "",
+    photoUrl: "",
+    summery: "",
     createdAt: serverTimestamp(),
   });
 
@@ -73,6 +75,8 @@ const HomeBook = () => {
       title: "",
       author: "",
       pages: "",
+      photoUrl: "",
+      summery: "",
       createdAt: serverTimestamp(),
     });
   };
@@ -93,42 +97,45 @@ const HomeBook = () => {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 mt-2 space-y-2">
-      {/* <div className="toast toast-top z-1000">
-        <div className="alert alert-error text-white p-2 ">
-          <span className="font-thin flex items-center justify-between gap-2">
-            <ExclamationTriangleIcon className="h-4 " /> Book Deleted
-            Succefuly
-          </span>
-        </div>
-      </div> */}
-
       <div className="card w-full bg-base-100 card-sm shadow-sm">
         <div className="card-body">
           <h2 className="card-title font-thin justify-center ">Add Book</h2>
-          <form onSubmit={(e) => handleSubmit(e)} className="space-y-2">
-            <input
-              type="text"
-              placeholder="Title"
-              value={newBook.title}
-              className="input"
-              onChange={(e) =>
-                setNewBook((old) => ({ ...old, title: e.target.value }))
-              }
-            />
+          <form
+            onSubmit={(e) => handleSubmit(e)}
+            className="space-y-2 grid grid-cols-3 gap-2"
+          >
+            <div className="flex flex-row items-center  col-span-3 gap-2">
+              {newBook.photoUrl ? (
+                <img className="size-10 rounded-box" src={newBook.photoUrl} />
+              ) : (
+                <div className="skeleton size-10  w-11"></div>
+              )}
+
+              <input
+                type="text"
+                placeholder="Title"
+                value={newBook.title}
+                className="input col-span-2 w-full "
+                onChange={(e) =>
+                  setNewBook((old) => ({ ...old, title: e.target.value }))
+                }
+              />
+            </div>
             <input
               type="text"
               placeholder="Author"
               value={newBook.author}
-              className="input"
+              className="input col-span-2 w-full"
               onChange={(e) =>
                 setNewBook((old) => ({ ...old, author: e.target.value }))
               }
             />
+
             <input
               type="number"
               value={newBook.pages}
               placeholder="Pages"
-              className="input validator"
+              className="input col-span-1"
               onChange={(e) =>
                 setNewBook((old) => ({
                   ...old,
@@ -137,7 +144,26 @@ const HomeBook = () => {
               }
             />
 
-            <button className="btn btn-soft btn-info font-thin  btn-wide max-w-full hover:text-white  ">
+            <input
+              type="text"
+              placeholder="PhotoUrl"
+              value={newBook.photoUrl}
+              className="input col-span-3 w-full"
+              onChange={(e) =>
+                setNewBook((old) => ({ ...old, photoUrl: e.target.value }))
+              }
+            />
+            <textarea
+              className="textarea col-span-3 resize-none w-full"
+              rows={5}
+              value={newBook.summery}
+              placeholder="Summery"
+              onChange={(e) =>
+                setNewBook((old) => ({ ...old, summery: e.target.value }))
+              }
+            ></textarea>
+
+            <button className="col-span-3 btn btn-soft btn-info font-thin  btn-wide max-w-full hover:text-white  ">
               Add Book
             </button>
           </form>
@@ -158,27 +184,32 @@ const HomeBook = () => {
         </div>
       </div>
 
-      {isloading && <h3>Loading ... </h3>}
       {error && <h3>Error : {error}</h3>}
 
       <ul className="list bg-base-100 rounded-box shadow-md  ">
         <li className="p-4 pb-2 text-xs opacity-60 tracking-wide">
           The best books
         </li>
-
-        {books &&
+        {isloading ? (
+          <div className="space-y-1 p-5">
+            <div className="skeleton h-4 w-full p-6"></div>
+            <div className="skeleton h-4 w-full p-6"></div>
+            <div className="skeleton h-4 w-full p-6"></div>
+          </div>
+        ) : (
           books.map((book) => (
-            <li className="list-row">
+            <li className="list-row" key={book.id}>
               <div>
-                <img
-                  className="size-10 rounded-box"
-                  src="https://leaders.com/wp-content/uploads/2023/02/Database-bio-profile-pic-28.png"
-                />
+                {book.photoUrl ? (
+                  <img className="size-10 rounded-box" src={book.photoUrl} />
+                ) : (
+                  <div className="skeleton size-10  w-11"></div>
+                )}
               </div>
               <div>
                 <Link
                   to={`/viewBook/${book.id}`}
-                  className="hover:text-blue-600"
+                  className="hover:text-secondary"
                 >
                   <div>{book.author}</div>
                 </Link>
@@ -188,19 +219,20 @@ const HomeBook = () => {
               </div>
               <div className="flex justify-end items-center">
                 <Link to={`/viewBook/${book.id}`}>
-                  <button className="btn btn-square btn-ghost hover:text-blue-500">
+                  <button className="btn btn-square btn-ghost hover:text-primary">
                     <EyeIcon className="size-[1.2em]" />
                   </button>
                 </Link>
                 <button
-                  className="btn btn-square btn-ghost hover:text-red-500"
+                  className="btn btn-square btn-ghost hover:text-secondary"
                   onClick={() => handleDelete(book.id)}
                 >
                   <TrashIcon className="size-[1.2em]" />
                 </button>
               </div>
             </li>
-          ))}
+          ))
+        )}
       </ul>
     </div>
   );

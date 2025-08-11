@@ -7,6 +7,7 @@ import {
   XMarkIcon,
   BookOpenIcon,
   UserIcon,
+  LinkIcon,
 } from "@heroicons/react/24/outline";
 
 const ViewBook = () => {
@@ -66,8 +67,35 @@ const ViewBook = () => {
               <div className="skeleton h-4 w-full p-5"></div>
             </div>
           ) : (
-            <form className="space-y-1" onSubmit={(e) => handleUpdate(e)}>
-              <label className="input">
+            <form
+              className="space-y-1 grid grid-cols-3 gap-2"
+              onSubmit={(e) => handleUpdate(e)}
+            >
+              <div className="flex flex-row gap-2 col-span-3 ">
+                {updatedBook.photoUrl ? (
+                  <img
+                    className="size-10 rounded-box"
+                    src={updatedBook.photoUrl}
+                  />
+                ) : (
+                  <div className="skeleton size-10  w-11"></div>
+                )}
+                <label className="input w-full">
+                  <UserIcon className="h-[1em] opacity-50" />
+
+                  <input
+                    type="text"
+                    value={updatedBook.author}
+                    onChange={(e) =>
+                      setUpdatedBook((old) => ({
+                        ...old,
+                        author: e.target.value,
+                      }))
+                    }
+                  />
+                </label>
+              </div>
+              <label className="input col-span-2 w-full">
                 <BookOpenIcon className="h-[1em] opacity-50" />
                 <input
                   type="text"
@@ -80,21 +108,8 @@ const ViewBook = () => {
                   }
                 />
               </label>
-              <label className="input">
-                <UserIcon className="h-[1em] opacity-50" />
 
-                <input
-                  type="text"
-                  value={updatedBook.author}
-                  onChange={(e) =>
-                    setUpdatedBook((old) => ({
-                      ...old,
-                      author: e.target.value,
-                    }))
-                  }
-                />
-              </label>
-              <label className="input">
+              <label className="input col-span-1">
                 <NumberedListIcon className="h-[1em] opacity-50" />
 
                 <input
@@ -111,7 +126,30 @@ const ViewBook = () => {
                 />
               </label>
 
-              <div className="justify-end card-actions">
+              <label className="input col-span-3 w-full">
+                <LinkIcon className="h-[1em] opacity-50" />
+                <input
+                  type="text"
+                  value={updatedBook.photoUrl}
+                  onChange={(e) =>
+                    setUpdatedBook((old) => ({
+                      ...old,
+                      photoUrl: e.target.value,
+                    }))
+                  }
+                />
+              </label>
+              <textarea
+                className="textarea col-span-3 resize-none w-full"
+                rows={5}
+                value={updatedBook.summery}
+                placeholder="Summery"
+                onChange={(e) =>
+                  setUpdatedBook((old) => ({ ...old, summery: e.target.value }))
+                }
+              ></textarea>
+
+              <div className="justify-end card-actions col-span-3 ">
                 <button className="btn btn-soft btn-secondary btn-wide max-w-full ">
                   Modify
                 </button>
