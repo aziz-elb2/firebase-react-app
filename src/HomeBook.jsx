@@ -19,7 +19,9 @@ import {
   ExclamationTriangleIcon,
   EyeIcon,
   MagnifyingGlassIcon,
+  PlusIcon,
   TrashIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { Link } from "react-router-dom";
 
@@ -28,6 +30,7 @@ const HomeBook = () => {
   const [isloading, setIsloading] = useState(true);
   const [error, setError] = useState(null);
   const [filterPages, setFilterPages] = useState("");
+  const [displayDialog, setDisplayDialog] = useState(false);
   const colRef = collection(db, "books");
 
   const navigate = useNavigate();
@@ -68,6 +71,7 @@ const HomeBook = () => {
     addDoc(colRef, newBook).then((snapshot) => {
       console.log("Book added succesfuly");
     });
+    clickAdd();
     resetAddForm();
   };
   const resetAddForm = () => {
@@ -95,84 +99,106 @@ const HomeBook = () => {
     });
   };
 
+  const clickAdd = () => {
+    setDisplayDialog((old) => !old);
+  };
+
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 mt-2 space-y-2">
-      <div className="card w-full bg-base-100 card-sm shadow-sm">
-        <div className="card-body">
-          <h2 className="card-title font-thin justify-center ">Add Book</h2>
-          <form
-            onSubmit={(e) => handleSubmit(e)}
-            className="space-y-2 grid grid-cols-3 gap-2"
-          >
-            <div className="flex flex-row items-center  col-span-3 gap-2">
-              {newBook.photoUrl ? (
-                <img className="size-10 rounded-box" src={newBook.photoUrl} />
-              ) : (
-                <div className="skeleton size-10  w-11"></div>
-              )}
+      {displayDialog && (
+        <div className="card w-full bg-base-100 card-sm shadow-sm">
+          <div className="card-body">
+            <h2 className="card-title font-thin justify-between ">
+              <span></span>
+              <span>Add Book</span>
+              <XMarkIcon
+                onClick={() => clickAdd()}
+                className="h-[1em] hover:text-red-500 cursor-pointer transform transition-transform  ease-out duration-200 hover:scale-110"
+              />
+            </h2>
+            <form
+              onSubmit={(e) => handleSubmit(e)}
+              className="space-y-2 grid grid-cols-3 gap-2"
+            >
+              <div className="flex flex-row items-center  col-span-3 gap-2">
+                {newBook.photoUrl ? (
+                  <img className="size-10 rounded-box" src={newBook.photoUrl} />
+                ) : (
+                  <div className="skeleton size-10  w-11"></div>
+                )}
+
+                <input
+                  type="text"
+                  placeholder="Title"
+                  value={newBook.title}
+                  className="input col-span-2 w-full "
+                  onChange={(e) =>
+                    setNewBook((old) => ({ ...old, title: e.target.value }))
+                  }
+                />
+              </div>
+              <input
+                type="text"
+                placeholder="Author"
+                value={newBook.author}
+                className="input col-span-2 w-full"
+                onChange={(e) =>
+                  setNewBook((old) => ({ ...old, author: e.target.value }))
+                }
+              />
+              <label className="input  col-span-1 w-full">
+                <input
+                  type="number"
+                  value={newBook.pages}
+                  placeholder="Pages"
+                  className=""
+                  onChange={(e) =>
+                    setNewBook((old) => ({
+                      ...old,
+                      pages: parseInt(e.target.value),
+                    }))
+                  }
+                />
+              </label>
 
               <input
                 type="text"
-                placeholder="Title"
-                value={newBook.title}
-                className="input col-span-2 w-full "
+                placeholder="PhotoUrl"
+                value={newBook.photoUrl}
+                className="input col-span-3 w-full"
                 onChange={(e) =>
-                  setNewBook((old) => ({ ...old, title: e.target.value }))
+                  setNewBook((old) => ({ ...old, photoUrl: e.target.value }))
                 }
               />
-            </div>
-            <input
-              type="text"
-              placeholder="Author"
-              value={newBook.author}
-              className="input col-span-2 w-full"
-              onChange={(e) =>
-                setNewBook((old) => ({ ...old, author: e.target.value }))
-              }
-            />
+              <textarea
+                className="textarea col-span-3 resize-none w-full"
+                rows={5}
+                value={newBook.summery}
+                placeholder="Summery"
+                onChange={(e) =>
+                  setNewBook((old) => ({ ...old, summery: e.target.value }))
+                }
+              ></textarea>
 
-            <input
-              type="number"
-              value={newBook.pages}
-              placeholder="Pages"
-              className="input col-span-1"
-              onChange={(e) =>
-                setNewBook((old) => ({
-                  ...old,
-                  pages: parseInt(e.target.value),
-                }))
-              }
-            />
-
-            <input
-              type="text"
-              placeholder="PhotoUrl"
-              value={newBook.photoUrl}
-              className="input col-span-3 w-full"
-              onChange={(e) =>
-                setNewBook((old) => ({ ...old, photoUrl: e.target.value }))
-              }
-            />
-            <textarea
-              className="textarea col-span-3 resize-none w-full"
-              rows={5}
-              value={newBook.summery}
-              placeholder="Summery"
-              onChange={(e) =>
-                setNewBook((old) => ({ ...old, summery: e.target.value }))
-              }
-            ></textarea>
-
-            <button className="col-span-3 btn btn-soft btn-info font-thin  btn-wide max-w-full hover:text-white  ">
-              Add Book
-            </button>
-          </form>
+              <button className="col-span-3 btn btn-soft btn-info font-thin  btn-wide max-w-full hover:text-white  ">
+                Add Book
+              </button>
+            </form>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="card w-full bg-base-100 card-sm shadow-sm">
         <div className="card-body">
-          <h2 className="card-title font-thin">Books Pages</h2>
+          <h2 className="card-title font-thin flex flex-row justify-between">
+            Books Pages
+            <button
+              className="btn btn-ghost font-light hover:text-secondary"
+              onClick={() => clickAdd()}
+            >
+              Add <PlusIcon className="h-[1em]" />
+            </button>
+          </h2>
 
           <label className="input">
             <MagnifyingGlassIcon className="h-[1em] opacity-50" />
