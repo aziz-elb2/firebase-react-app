@@ -1,21 +1,17 @@
-import { BrowserRouter as Router , Routes , Route } from "react-router-dom";
-import HomeBook from "./HomeBook";
-import ViewBook from "./ViewBook";
-import Login from "./Login";
-import Signup from "./Signup";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import HomeBook from "./components/HomeBook";
+import ViewBook from "./components/ViewBook";
+import Login from "./components/Login";
+import Signup from "./components/Signup";
 function App() {
-  
-  
-
   return (
     <>
-      
       <Router>
         <Routes>
-          <Route path="/signup"  element={<Signup />} />
-          <Route path="/login"  element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/" index element={<HomeBook />} />
-          <Route path="/viewBook/:id"  element={<ViewBook />} />
+          <Route path="/viewBook/:id" element={<ViewBook />} />
         </Routes>
       </Router>
     </>
