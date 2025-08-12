@@ -130,15 +130,14 @@ This project uses environment variables to securely store Firebase credentials. 
 
 <div align="center">
 
-| Feature               | Screenshot                                          |
-| --------------------- | --------------------------------------------------- |
-| 🔐 **Login**          | ![Login](public/media/login-screenshot.png)         |
-| ✍️ **Signup**         | ![Signup](public/media/signup-screenshot.png)       |
-| 🏠 **Home**           | ![Home](public/media/home-screenshot.png)           |
-| ➕ **Add Book**       | ![Add Book](public/media/add-book-screenshot.png)   |
-| 👁️ **View Book** | ![View Book](public/media/view-book-screenshot.png) |
-| ⚙️ **Update Book** | ![View Book](public/media/update-book-screenshot.png) |
-
+| Feature            | Screenshot                                                          |
+| ------------------ | ------------------------------------------------------------------- |
+| 🔐 **Login**       | ![Login](public/media/screenshots/login-screenshot.png)             |
+| ✍️ **Signup**      | ![Signup](public/media/screenshots/signup-screenshot.png)           |
+| 🏠 **Home**        | ![Home](public/media/screenshots/home-screenshot.png)               |
+| ➕ **Add Book**    | ![Add Book](public/media/screenshots/add-book-screenshot.png)       |
+| 👁️ **View Book**   | ![View Book](public/media/screenshots/view-book-screenshot.png)     |
+| ⚙️ **Update Book** | ![Update Book](public/media/screenshots/update-book-screenshot.png) |
 
 </div>
 
@@ -146,11 +145,31 @@ This project uses environment variables to securely store Firebase credentials. 
 
 <div align="center">
 
-[![Demo Video](public/media/demo-thumbnail.png)](public/media/demo-video.mp4)
+[![Demo Video](public/media/demo/demo-thumbnail.png)](public/media/demo/demo-video.mp4)
 
 _Click to watch the full demo video_
 
 </div>
+
+## 📸 Adding Media Files
+
+To add screenshots and videos to your README:
+
+1. **Screenshots**: Place them in `public/media/screenshots/` with these names:
+
+   - `login-screenshot.png`
+   - `signup-screenshot.png`
+   - `home-screenshot.png`
+   - `add-book-screenshot.png`
+   - `view-book-screenshot.png`
+   - `update-book-screenshot.png`
+
+2. **Demo Video**: Place in `public/media/demo/`:
+
+   - `demo-video.mp4` - Main demo video
+   - `demo-thumbnail.png` - Video thumbnail
+
+3. **Update README**: Once you add the files, update the table above to show the actual images!
 
 ## 🏗️ Project Structure
 
