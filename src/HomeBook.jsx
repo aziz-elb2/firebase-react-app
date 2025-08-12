@@ -16,48 +16,51 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import {
+  ArrowLeftEndOnRectangleIcon,
   ExclamationTriangleIcon,
   EyeIcon,
   MagnifyingGlassIcon,
   PlusIcon,
   SparklesIcon,
   TrashIcon,
-
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-import { UserIcon } from "@heroicons/react/24/solid";
+import { ArrowLeftStartOnRectangleIcon, UserIcon } from "@heroicons/react/24/solid";
 import { Link } from "react-router-dom";
+import { auth } from "./firebase";
+import { signOut, onAuthStateChanged } from "firebase/auth";
+import { ArrowLeftOnRectangleIcon } from "@heroicons/react/20/solid";
 
 const HomeBook = () => {
   const [books, setBooks] = useState([]);
+  const [filteredBooks, setFilteredBooks] = useState([]);
   const [isloading, setIsloading] = useState(true);
   const [error, setError] = useState(null);
-  const [filterTitle, setfilterTitle] = useState("");
+  const [Pattern, setPattern] = useState("");
   const [displayDialog, setDisplayDialog] = useState(false);
   const colRef = collection(db, "books");
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    let q;
-
-    if (filterTitle) {
-      q = query(
-        colRef,
-        where("title", "array-contains", filterTitle),
-        orderBy("createdAt")
-      );
-    } else {
-      q = query(colRef, orderBy("createdAt"));
-    }
-
-    onSnapshot(q, (snapshot) => {
+    const q = query(colRef, orderBy("createdAt"));
+    const unsubCol = onSnapshot(q, (snapshot) => {
       setIsloading(true);
       const docs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setBooks(docs);
+      setFilteredBooks(docs);
       setIsloading(false);
     });
-  }, [filterTitle]);
+
+    const unsubAuth = onAuthStateChanged(auth, (user) => {
+      if (!user) navigate("/login");
+    });
+
+    return () => {
+      unsubCol();
+      unsubAuth();
+    };
+  }, []);
 
   //Adding books logic
   const [newBook, setNewBook] = useState({
@@ -113,8 +116,18 @@ const HomeBook = () => {
     setNewBook((old) => ({ ...old, photoUrl: randomUrl }));
   };
 
+  const handleLogOut = () => {
+    signOut(auth)
+      .then(() => {
+        console.log("The user is log out");
+      })
+      .catch((error) => {
+        console.log("Error : ", error);
+      });
+  };
+
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 mt-2 space-y-2">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 mt-4 space-y-2">
       {displayDialog && (
         <div className="card w-full bg-base-100 card-sm shadow-sm">
           <div className="card-body">
@@ -173,7 +186,7 @@ const HomeBook = () => {
                     type="text"
                     placeholder="PhotoUrl"
                     value={newBook.photoUrl}
-                    className="input col-span-3 w-full"
+                    className=" col-span-3 w-full"
                     onChange={(e) =>
                       setNewBook((old) => ({
                         ...old,
@@ -211,24 +224,42 @@ const HomeBook = () => {
         </div>
       )}
 
-      <div className="card w-full bg-base-100 card-sm shadow-sm">
+      <div className="card w-full bg-base-100 card-sm shadow-md">
         <div className="card-body">
           <h2 className="card-title font-thin flex flex-row justify-between">
             <span>Books</span>
-            <span className="text-sm flex items-center justify-center gap-1">
-              <button className="btn btn-sm btn-soft btn-secondary hover:text-white">
-                <UserIcon className="h-[1em] opacity-90 " />
-                Logout
-              </button>
-            </span>
+          
+            <div className="dropdown dropdown-end">
+              <div tabIndex={0} role="button" className="btn btn-sm btn-soft btn-secondary ">
+                 <UserIcon className="h-[1em] opacity-90 " />
+                {auth.currentUser.email.split("@")[0]}
+              </div>
+              <ul
+                tabIndex={0}
+                className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm"
+              >
+                <li className="disabled ">
+                  <a className="justify-center">
+                    {auth.currentUser.email}
+                  </a>
+                </li>
+                <li>
+                  <a className="btn btn-sm btn-soft btn-secondary hover:text-white" onClick={() => handleLogOut()}>
+                    <ArrowLeftStartOnRectangleIcon className="h-[1em]"/>
+                    
+                    Logout
+                  </a>
+                </li>
+              </ul>
+            </div>
           </h2>
 
-          <label className="input">
+          <label className="input w-full">
             <MagnifyingGlassIcon className="h-[1em] opacity-50" />
             <input
               type="text"
               placeholder="Book title"
-              onChange={(e) => setfilterTitle(e.target.value)}
+              onChange={(e) => setPattern(e.target.value)}
             />
           </label>
         </div>
@@ -236,7 +267,7 @@ const HomeBook = () => {
 
       {error && <h3>Error : {error}</h3>}
 
-      <ul className="list bg-base-100 rounded-box shadow-md  ">
+      <ul className="list bg-base-100 rounded-box shadow-lg  ">
         <li className="p-4 pb-2 text-xs  tracking-wide text-center flex justify-between items-center">
           <span className="opacity-60">My list of books</span>
           <button
@@ -255,41 +286,46 @@ const HomeBook = () => {
             <div className="skeleton h-4 w-full p-6"></div>
           </div>
         ) : (
-          books.map((book) => (
-            <li className="list-row" key={book.id}>
-              <div>
-                {book.photoUrl ? (
-                  <img className="size-10 rounded-box" src={book.photoUrl} />
-                ) : (
-                  <div className="skeleton size-10  w-11"></div>
-                )}
-              </div>
-              <div>
-                <Link
-                  to={`/viewBook/${book.id}`}
-                  className="hover:text-secondary"
-                >
-                  <div>{book.author}</div>
-                </Link>
-                <div className="text-xs uppercase font-semibold opacity-60">
-                  {book.title}
+          filteredBooks
+            .filter(
+              (book) =>
+                book.title.includes(Pattern) || book.author.includes(Pattern)
+            )
+            .map((book) => (
+              <li className="list-row" key={book.id}>
+                <div>
+                  {book.photoUrl ? (
+                    <img className="size-10 rounded-box" src={book.photoUrl} />
+                  ) : (
+                    <div className="skeleton size-10  w-11"></div>
+                  )}
                 </div>
-              </div>
-              <div className="flex justify-end items-center">
-                <Link to={`/viewBook/${book.id}`}>
-                  <button className="btn btn-square btn-ghost hover:text-primary">
-                    <EyeIcon className="size-[1.2em]" />
+                <div>
+                  <Link
+                    to={`/viewBook/${book.id}`}
+                    className="hover:text-secondary"
+                  >
+                    <div>{book.author}</div>
+                  </Link>
+                  <div className="text-xs uppercase font-semibold opacity-60">
+                    {book.title}
+                  </div>
+                </div>
+                <div className="flex justify-end items-center">
+                  <Link to={`/viewBook/${book.id}`}>
+                    <button className="btn btn-square btn-ghost hover:text-primary">
+                      <EyeIcon className="size-[1.2em]" />
+                    </button>
+                  </Link>
+                  <button
+                    className="btn btn-square btn-ghost hover:text-secondary"
+                    onClick={() => handleDelete(book.id)}
+                  >
+                    <TrashIcon className="size-[1.2em]" />
                   </button>
-                </Link>
-                <button
-                  className="btn btn-square btn-ghost hover:text-secondary"
-                  onClick={() => handleDelete(book.id)}
-                >
-                  <TrashIcon className="size-[1.2em]" />
-                </button>
-              </div>
-            </li>
-          ))
+                </div>
+              </li>
+            ))
         )}
       </ul>
     </div>

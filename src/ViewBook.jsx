@@ -91,7 +91,7 @@ const ViewBook = () => {
             )}
           </div>
           {loading ? (
-            <div className="space-y-1">
+            <div className="space-y-2">
              <div className="flex gap-1">
                <div className="skeleton h-4 w-2 p-5"></div><div className="skeleton h-4 w-full p-5"></div>
              </div>
